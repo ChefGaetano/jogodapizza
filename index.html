@@ -22,7 +22,7 @@
 <body>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
     <audio id="pickupSound" src="data:audio/wav;base64,UklGRngGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQgGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiKQwgZaLvt559pFQlQp+PqsHMcBj2T1eS1eSUFJ3nH5cSDRRAbaMLk249cHAxQnM/drnIqFTyQyNabYzcpMXWsoXpEJWOVsqZqNiJXiqijczsoWYOdkVwzN3STrZxVNVKEl5dMIjFqm7SNTj5ckp+hWDQ6fKGrmEMiRG+jtYhGKFF3rrBvLjVqprmIQiVahcOtVx8mbcu4ZiMRRs6+bmQWC1XcxGJOChFp4sdRPAcYevDFQysAHob4yEAg+hqM/NJBGPgVj/vYRBf9Io310EAR/DGT9sxBEvM2mvnTRxLvOpn70UwQ8ziY+9JQDvM6l/rSVA3zPZX41FcM8UGU+NNbC+9Ek/nSXgrtRpL61F4K7EiQ+9RgCetKjvzUYQnqTIz91WIJ6k2K/tVjCOlPiP/WZAjoUIf/1mUI6FKF/9dlCOdUgwDYZgfnVoIA2GcH5liAANlnB+RafwHaaAbkXH0C2mkG412A/9lnBuZhfwDaaQXoaooB1VsD7HMZC8Qp/vWDNAWtEPL5nFABmQTp+bJrAoAA4PfDhQV5B+P0wI4JgBDn8bmQDZUa7Oyvjg+tJfDqpIoPxTDy5pqGEthB9OOLdxLmT/bdgGgS8Vv62W5XFP9q/NVlRhQHePzRWjQPDIn+zUwoChWa/80+FwMcsP7QPw4AI7z+2V4dChS3/d96JwgNsvzohTQACLH78JlB+wWz+/anUPgCsvn9uGD1AbP4/8lr8gC19v/Zd+8AuPT/5YruALry/+6W7QC87v/1ouwAvuv//6vqAMDo/v+26ADB5v3/wOYAw+T9/8vkAMXh/P/W4gDH3/v/4eAAytz6/+3eAMzZ+f/52gDO1/j//9gA0NT3///WANPd///fz//X5///6sv/2u3///LH/9/8///2w//i///68f/o//////Ht//Tp/v/n4f/63Pv/383/+8n4//q9/Putzvv7mZv9+3xn/vplMv76UDP/+jAR//oQ+P/57+X/+dHO//mwvP/5jKH/+WhF//lCKP/5GAz/+e3N//js7//4y9n/+Kq1//iDhv/4WG3/+DAn//oG///7Bgb/+wYH//sICf/7CQv/+wsM//wNDv/8EBL//BIU//wVF//9GBv//Rsd//0eIf/9ISX//SQo//0nK//+KS3//Sww//4uM//+MTb//jM4//41O//+Nz3//jk///46QP/+PEL//j1D//4/Rf/+QEb//kFH//5CSP/+Q0n//kRK//5ES//+RUv//kVL//5GTP/+Rk3//kZN//5HTf/+R03//kdN//5HTf/+R03//kZN//5GTf/+Rk3//kZM//5FTP/+RUv//kRK//5DSf/+Qkj//kFH//5ARv/+P0X//j5D//49Qv/+O0H//jpA//44Pv/+Nz3//jU7//4zOf/+MTb//i80//4tMv/+KjD//ict//4lKv/9Iif//SAk//0eIf/9HB///RoD4AAAACAJMA=="></audio>
-    <audio id="gameOverSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YVAGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiKQwgZaLvt559pFQlQp+PqsHMcBj2T1eS1eSUFJ3nH5cSDRRAbaMLk249cHAxQnM/drnIqFTyQyNabYzcpMXWsoXpEJWOVsqZqNiJXiqijczsoWYOdkVwzN3STrZxVNVKEl5dMIjFqm7SNTj5ckp+hWDQ6fKGrmEMiRG+jtYhGKFF3rrBvLjVqprmIQiVahcOtVx8mbcu4ZiMRRs6+bmQWC1XcxGJOChFp4sdRPAcYevDFQysAHob4yEAg+hqM/NJBGPgVj/vYRBf9Io310EAR/DGT9sxBEvM2mvnTRxLvOpn70UwQ8ziY+9JQDvM6l/rSVA3zPZX41FcM8UGU+NNbC+9Ek/nSXgrtRpL61F4K7EiQ+9RgCetKjvzUYQnqTIz91WIJ6k2K/tVjCOlPiP/WZAjoUIf/1mUI6FKF/9dlCOdUgwDYZgfnVoIA2GcH5liAANlnB+RafwHaaAbkXH0C2mkG412A/9lnBuZhfwDaaQXoaooB1VsD7HMZC8Qp/vWDNAWtEPL5nFABmQTp+bJrAoAA4PfDhQV5B+P0wI4JgBDn8bmQDZUa7Oyvjg+tJfDqpIoPxTDy5pqGEthB9OOLdxLmT/bdgGgS8Vv62W5XFP9q/NVlRhQHePzRWjQPDIn+zUwoChWa/80+FwMcsP7QPw4AI7z+2V4dChS3/d96JwgNsvzohTQACLH78JlB+wWz+/anUPgCsvn9uGD1AbP4/8lr8gC19v/Zd+8AuPT/5YruALry/+6W7QC87v/1ouwAvuv//6vqAMDo/v+26ADB5v3/wOYAw+T9/8vkAMXh/P/W4gDH3/v/4eAAytz6/+3eAMzZ+f/52gDO1/j//9gA0NT3///WANLm///m0v/U7P//8M3/1/P///fJ/9r5///6xf/d/v//+v/Y9v7/9PP/1Ov9/+/o/9Pg/P/p3f/Q1Pv/5NP/zcj5/97J/8m8+P/Yw//Gr/f/0b3/w6P1/8u4/7+X9P/FtP+8i/L/v7D/uH/x/7mt/7Vz7/+zqf+yZ+7/rab/r1rs/6mj/6xO6/+jn/+pQun/nZz/pzXo/5iY/6Up5v+Slf+iHOX/jZH/oA/j/4iN/57n/4OK/5zW/n+G/5rF/Xt9/5e0/Hd5/5Sj+3N2/5KS+m9y/4+B+Wtv/419+Gdr/4xy92Nn/4pn9l5k/4dd9Vpg/4VT81dd/4NJ8lNa/4E/8U9W/38248xT/30t4cdP/3wk3cNM/3ob2b9I/3kS1btF/3gJz7dB/3cGybM+/3YNrcL//3US0eHw/3Qa1O3o/3Qh1/Ti/3Qo2frb/3Qv3P/V/3Q13gDO/3Q8mVa6/3lIsp3X/3tIpNfg/31HluHo/39Gh+vw/4FFePP3/4JEdPz+/4RDb/7//4ZA////50H////IQ////6hD////iET///9oRf///0hG////KEb///8IRv///+hF////yEX///+oRf///4hF////aET///9IRf///4hF////aET///9IRf///yhF////CEX////oRP///8hE////qET///+IRP///2hE////SET///8oRP///whE////6EP///+oQ////4hD////aEP///9IQ////yhD////CEP////oQv///8hC////qEL///+IQv///2hC////SEL///8oQv///whC////6EH///+oQf///4hB////aEH///9IQf///yhB////CEH////oQP///8hA////qED///+IQP///2hA////SEA="></audio>
+    <audio id="gameOverSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YVAGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiKQwgZaLvt559pFQlQp+PqsHMcBj2T1eS1eSUFJ3nH5cSDRRAbaMLk249cHAxQnM/drnIqFTyQyNabYzcpMXWsoXpEJWOVsqZqNiJXiqijczsoWYOdkVwzN3STrZxVNVKEl5dMIjFqm7SNTj5ckp+hWDQ6fKGrmEMiRG+jtYhGKFF3rrBvLjVqprmIQiVahcOtVx8mbcu4ZiMRRs6+bmQWC1XcxGJOChFp4sdRPAcYevDFQysAHob4yEAg+hqM/NJBGPgVj/vYRBf9Io310EAR/DGT9sxBEvM2mvnTRxLvOpn70UwQ8ziY+9JQDvM6l/rSVA3zPZX41FcM8UGU+NNbC+9Ek/nSXgrtRpL61F4K7EiQ+9RgCetKjvzUYQnqTIz91WIJ6k2K/tVjCOlPiP/WZAjoUIf/1mUI6FKF/9dlCOdUgwDYZgfnVoIA2GcH5liAANlnB+RafwHaaAbkXH0C2mkG412A/9lnBuZhfwDaaQXoaooB1VsD7HMZC8Qp/vWDNAWtEPL5nFABmQTp+bJrAoAA4PfDhQV5B+P0wI4JgBDn8bmQDZUa7Oyvjg+tJfDqpIoPxTDy5pqGEthB9OOLdxLmT/bdgGgS8Vv62W5XFP9q/NVlRhQHePzRWjQPDIn+zUwoChWa/80+FwMcsP7QPw4AI7z+2V4dChS3/d96JwgNsvzohTQACLH78JlB+wWz+/anUPgCsvn9uGD1AbP4/8lr8gC19v/Zd+8AuPT/5YruALry/+6W7QC87v/1ouwAvuv//6vqAMDo/v+26ADB5v3/wOYAw+T9/8vkAMXh/P/W4gDH3/v/4eAAytz6/+3eAMzZ+f/52gDO1/j//9gA0NT3///WANPd///fz//X5///6sv/2u3///LH/9/8///2w//i///68f/o//////Ht//Tp/v/n4f/63Pv/383/+8n4//q9/Putzvv7mZv9+3xn/vplMv76UDP/+jAR//oQ+P/57+X/+dHO//mwvP/5jKH/+WhF//lCKP/5GAz/+e3N//js7//4y9n/+Kq1//iDhv/4WG3/+DAn//oG///7Bgb/+wYH//sICf/7CQv/+wsM//wNDv/8EBL//BIU//wVF//9GBv//Rsd//0eIf/9ISX//SQo//0nK//+KS3//Sww//4uM//+MTb//jM4//41O//+Nz3//jk///46QP/+PEL//j1D//4/Rf/+QEb//kFH//5CSP/+Q0n//kRK//5ES//+RUv//kVL//5GTP/+Rk3//kZN//5HTf/+R03//kdN//5HTf/+R03//kZN//5GTf/+Rk3//kZM//5FTP/+RUv//kRK//5DSf/+Qkj//kFH//5ARv/+P0X//j5D//49Qv/+O0H//jpA//44Pv/+Nz3//jU7//4zOf/+MTb//i80//4tMv/+KjD//ict//4lKv/9Iif//SAk//0eIf/9HB///RoD4AAAACAJMA=="></audio>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -114,3 +114,78 @@
             player = [{ x: 10, y: 10 }];
             dx = 0;
             dy = 0;
+            score = 0;
+            gameSpeed = 200;
+            isPaused = false;
+            gameLoop = setInterval(drawGame, gameSpeed);
+        }
+
+        function showPromoMessage() {
+            isPaused = true;
+            const message = score % 20 === 0 ? "Chef Gaetano" : "Pizzaria Bella Napoli";
+            alert(message);
+            setTimeout(() => {
+                isPaused = false;
+            }, 2000);
+        }
+
+        function handleKeyDown(e) {
+            switch(e.key) {
+                case 'ArrowLeft': dx = -1; dy = 0; break;
+                case 'ArrowRight': dx = 1; dy = 0; break;
+                case 'ArrowUp': dx = 0; dy = -1; break;
+                case 'ArrowDown': dx = 0; dy = 1; break;
+            }
+        }
+
+        canvas.addEventListener('touchstart', handleTouchStart, false);
+        canvas.addEventListener('touchmove', handleTouchMove, false);
+        document.addEventListener('keydown', handleKeyDown);
+
+        let xDown = null;
+        let yDown = null;
+
+        function handleTouchStart(evt) {
+            const firstTouch = evt.touches[0];
+            xDown = firstTouch.clientX;
+            yDown = firstTouch.clientY;
+        }
+
+        function handleTouchMove(evt) {
+            if (!xDown || !yDown) return;
+
+            const xUp = evt.touches[0].clientX;
+            const yUp = evt.touches[0].clientY;
+            const xDiff = xDown - xUp;
+            const yDiff = yDown - yUp;
+
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                dx = xDiff > 0 ? -1 : 1;
+                dy = 0;
+            } else {
+                dx = 0;
+                dy = yDiff > 0 ? -1 : 1;
+            }
+
+            xDown = null;
+            yDown = null;
+        }
+
+        function showInstructions() {
+            const instructions = `
+            Como jogar:
+            - Deslize na tela ou use as setas do teclado para mover o chapéu do chef.
+            - Colete as fatias de pizza para marcar pontos.
+            - A velocidade aumenta a cada 20 pontos.
+            - Tente bater seu próprio recorde!
+            
+            Divirta-se na Pizzaria Bella Napoli do Chef Gaetano!
+            `;
+            alert(instructions);
+        }
+
+        showInstructions();
+        gameLoop = setInterval(drawGame, gameSpeed);
+    </script>
+</body>
+</html>
