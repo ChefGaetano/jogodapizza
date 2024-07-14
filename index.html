@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,18 +16,155 @@
         }
         canvas {
             background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid black;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <audio id="pickupSound" src="data:audio/wav;base64,..."></audio>
-    <audio id="gameOverSound" src="data:audio/wav;base64,..."></audio>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const pickupSound = document.getElementById('pickupSound');
-        const gameOverSound = document.getElementById('gameOverSound');
 
-        let player = [{ x: 10, y: 10 }];
-        let
+        let player = { x: 200, y: 200, size: 20 };
+        let pizza = { x: 100, y: 100, size: 20 };
+        let dx = 0;
+        let dy = 0;
+        let score = 0;
+        let highScore = 0;
+        let gameSpeed = 24; // Velocità iniziale ridotta del 15%
+        let gameLoop;
+        let isPaused = false;
+        let gameStarted = false;
+
+        function drawGame() {
+            if (isPaused) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!gameStarted) {
+                drawStartScreen();
+                return;
+            }
+
+            // Desenha o jogador
+            ctx.font = '20px Arial';
+            ctx.fillText('👨‍🍳', player.x - 10, player.y + 10);
+
+            // Desenha a pizza
+            ctx.fillText('🍕', pizza.x - 10, pizza.y + 10);
+
+            // Desenha a pontuação
+            ctx.fillStyle = 'black';
+            ctx.font = '16px Arial';
+            ctx.fillText(`Pontuação: ${score} | Recorde: ${highScore}`, 10, 20);
+
+            // Desenha as instruções durante o jogo
+            ctx.fillText('Use as setas para mover', 10, canvas.height - 40);
+            ctx.fillText('Espaço para pausar', 10, canvas.height - 20);
+
+            movePlayer();
+            checkCollision();
+            checkBorderCollision();
+        }
+
+        function drawStartScreen() {
+            ctx.fillStyle = 'black';
+            ctx.font = '24px Arial';
+            ctx.fillText('Jogo de Pizza do Chef Gaetano', 50, 150);
+            ctx.font = '18px Arial';
+            ctx.fillText('Pressione ENTER para começar', 90, 200);
+            ctx.fillText('Use as setas para mover', 110, 230);
+            ctx.fillText('Espaço para pausar', 130, 260);
+        }
+
+        function movePlayer() {
+            player.x += dx;
+            player.y += dy;
+
+            // Mantém o jogador dentro dos limites do canvas
+            player.x = Math.max(10, Math.min(canvas.width - 10, player.x));
+            player.y = Math.max(10, Math.min(canvas.height - 10, player.y));
+        }
+
+        function checkCollision() {
+            const distance = Math.sqrt(Math.pow(player.x - pizza.x, 2) + Math.pow(player.y - pizza.y, 2));
+            if (distance < player.size) {
+                score++;
+                if (score > highScore) {
+                    highScore = score;
+                }
+                generatePizza();
+                increaseSpeed();
+            }
+        }
+
+        function checkBorderCollision() {
+            if (player.x <= 10 || player.x >= canvas.width - 10 ||
+                player.y <= 10 || player.y >= canvas.height - 10) {
+                gameOver();
+            }
+        }
+
+        function generatePizza() {
+            pizza.x = Math.random() * (canvas.width - 20) + 10;
+            pizza.y = Math.random() * (canvas.height - 20) + 10;
+        }
+
+        function increaseSpeed() {
+            gameSpeed = Math.max(5, gameSpeed - 1);
+            clearInterval(gameLoop);
+            gameLoop = setInterval(drawGame, gameSpeed);
+        }
+
+        function gameOver() {
+            clearInterval(gameLoop);
+            alert(`Game Over! Pontuação: ${score}`);
+            resetGame();
+        }
+
+        function resetGame() {
+            player = { x: 200, y: 200, size: 20 };
+            generatePizza();
+            score = 0;
+            gameSpeed = 24; // Resetta la velocità iniziale
+            dx = 0;
+            dy = 0;
+            gameStarted = false;
+            gameLoop = setInterval(drawGame, gameSpeed);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!gameStarted && e.key === 'Enter') {
+                gameStarted = true;
+                return;
+            }
+
+            switch(e.key) {
+                case 'ArrowLeft':
+                    dx = -5;
+                    dy = 0;
+                    break;
+                case 'ArrowRight':
+                    dx = 5;
+                    dy = 0;
+                    break;
+                case 'ArrowUp':
+                    dx = 0;
+                    dy = -5;
+                    break;
+                case 'ArrowDown':
+                    dx = 0;
+                    dy = 5;
+                    break;
+                case ' ':
+                    isPaused = !isPaused;
+                    break;
+            }
+        });
+
+        resetGame();
+    </script>
+</body>
+</html>
