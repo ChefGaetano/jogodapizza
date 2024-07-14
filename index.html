@@ -37,11 +37,6 @@
         let gameLoop;
         let isPaused = false;
 
-        function playSound(type) {
-            const audio = new Audio(type === 'pickup' ? 'pickup.mp3' : 'gameover.mp3');
-            audio.play().catch(e => console.error("Error playing sound:", e));
-        }
-
         function drawGame() {
             if (isPaused) return;
 
@@ -80,7 +75,6 @@
                     highScore = score;
                 }
                 generatePizza();
-                playSound('pickup');
                 increaseSpeed();
             }
         }
@@ -98,7 +92,6 @@
 
         function gameOver() {
             clearInterval(gameLoop);
-            playSound('gameover');
             alert(`Game Over! Pontuação: ${score}`);
             resetGame();
         }
