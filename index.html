@@ -12,11 +12,12 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background: linear-gradient(to right, green 33%, white 33%, white 66%, red 66%);
             font-family: Arial, sans-serif;
         }
         canvas {
             border: 2px solid #000;
+            background-color: rgba(255, 255, 255, 0.5); /* per rendere il canvas più visibile */
         }
         #scoreBoard {
             margin-top: 10px;
@@ -43,7 +44,7 @@
         let isPaused = false;
         let gameLoop;
 
-        const chefHat = '👨‍🍳';
+        const chefHat = '🧑‍🍳';
         const pizzaSlice = '🍕';
 
         function drawGame() {
