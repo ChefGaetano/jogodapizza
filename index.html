@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Gaetano's Pizza Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 2px solid #000;
+        }
+        #scoreBoard {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="scoreBoard">Pontuação: <span id="score">0</span> | Recorde: <span id="highScore">0</span></div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('highScore');
+
+        let score = 0;
+        let highScore = 0; // Inizializzato a 0 invece di usare localStorage
+        let gameSpeed = 200;
+        let player = { x: 10, y: 10 };
+        let pizza = { x: 15, y: 15 };
+        let dx = 0;
+        let dy = 0;
+        let isPaused = false;
+        let gameLoop;
+
+        const chefHat = '👨‍🍳';
+        const pizzaSlice = '🍕';
+
+        function drawGame() {
+            if (!isPaused) {
+                clearCanvas();
+                movePlayer();
+                drawPlayer();
+                drawPizza();
+                checkCollision();
+                updateScore();
+                checkDifficulty();
+            }
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function movePlayer() {
+            player.x += dx;
+            player.y += dy;
+
+            // Wrap around screen edges
+            if (player.x < 0) player.x = 19;
+            if (player.x > 19) player.x = 0;
+            if (player.y < 0) player.y = 19;
+            if (player.y > 19) player.y = 0;
+        }
+
+        function drawPlayer() {
+            ctx.font = '20px Arial';
+            ctx.fillText(chefHat, player.x * 20, player.y * 20 + 20);
+        }
+
+        function drawPizza() {
+            ctx.font = '20px Arial';
+            ctx.fillText(pizzaSlice, pizza.x * 20, pizza.y * 20 + 20);
+        }
+
+        function checkCollision() {
+            if (player.x === pizza.x && player.y === pizza.y) {
+                score++;
+                generatePizza();
+                if (score % 10 === 0) {
+                    showPromoMessage();
+                }
+            }
+        }
+
+        function generatePizza() {
+            pizza.x = Math.floor(Math.random() * 20);
+            pizza.y = Math.floor(Math.random() * 20);
+        }
+
+        function updateScore() {
+            scoreElement.textContent = score;
+            if (score > highScore) {
+                highScore = score;
+                highScoreElement.textContent = highScore;
+            }
+        }
+
+        function checkDifficulty() {
+            if (score === 20) {
+                gameSpeed = 140;
+            } else if (score === 40) {
+                gameSpeed = 95;
+            }
+            clearInterval(gameLoop);
+            gameLoop = setInterval(drawGame, gameSpeed);
+        }
+
+        function showPromoMessage() {
+            isPaused = true;
+            const message = score % 20 === 0 ? "Chef Gaetano" : "Pizzaria Bella Napoli";
+            alert(message);
+            setTimeout(() => {
+                isPaused = false;
+            }, 2000);
+        }
+
+        function handleKeyDown(e) {
+            switch(e.key) {
+                case 'ArrowLeft': dx = -1; dy = 0; break;
+                case 'ArrowRight': dx = 1; dy = 0; break;
+                case 'ArrowUp': dx = 0; dy = -1; break;
+                case 'ArrowDown': dx = 0; dy = 1; break;
+            }
+        }
+
+        canvas.addEventListener('touchstart', handleTouchStart, false);
+        canvas.addEventListener('touchmove', handleTouchMove, false);
+        document.addEventListener('keydown', handleKeyDown);
+
+        let xDown = null;
+        let yDown = null;
+
+        function handleTouchStart(evt) {
+            const firstTouch = evt.touches[0];
+            xDown = firstTouch.clientX;
+            yDown = firstTouch.clientY;
+        }
+
+        function handleTouchMove(evt) {
+            if (!xDown || !yDown) return;
+
+            const xUp = evt.touches[0].clientX;
+            const yUp = evt.touches[0].clientY;
+            const xDiff = xDown - xUp;
+            const yDiff = yDown - yUp;
+
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                dx = xDiff > 0 ? -1 : 1;
+                dy = 0;
+            } else {
+                dx = 0;
+                dy = yDiff > 0 ? -1 : 1;
+            }
+
+            xDown = null;
+            yDown = null;
+        }
+
+        function showInstructions() {
+            const instructions = `
+            Como jogar:
+            - Deslize na tela ou use as setas do teclado para mover o chapéu do chef.
+            - Colete as fatias de pizza para marcar pontos.
+            - A velocidade aumenta a cada 20 pontos.
+            - Tente bater seu próprio recorde!
+            
+            Divirta-se na Pizzaria Bella Napoli do Chef Gaetano!
+            `;
+            alert(instructions);
+        }
+
+        showInstructions();
+        gameLoop = setInterval(drawGame, gameSpeed);
+    </script>
+</body>
+</html>
