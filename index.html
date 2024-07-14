@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,18 +16,128 @@
         }
         canvas {
             background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid black;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <audio id="pickupSound" src="data:audio/wav;base64,..."></audio>
-    <audio id="gameOverSound" src="data:audio/wav;base64,..."></audio>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const pickupSound = document.getElementById('pickupSound');
-        const gameOverSound = document.getElementById('gameOverSound');
 
-        let player = [{ x: 10, y: 10 }];
-        let
+        let player = { x: 200, y: 200, size: 20 };
+        let pizza = { x: 100, y: 100, size: 20 };
+        let dx = 0;
+        let dy = 0;
+        let score = 0;
+        let highScore = 0;
+        let gameSpeed = 20;
+        let gameLoop;
+        let isPaused = false;
+
+        function playSound(type) {
+            const audio = new Audio(type === 'pickup' ? 'pickup.mp3' : 'gameover.mp3');
+            audio.play().catch(e => console.error("Error playing sound:", e));
+        }
+
+        function drawGame() {
+            if (isPaused) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenha o jogador
+            ctx.font = '20px Arial';
+            ctx.fillText('👨‍🍳', player.x, player.y);
+
+            // Desenha a pizza
+            ctx.fillText('🍕', pizza.x, pizza.y);
+
+            // Desenha a pontuação
+            ctx.fillStyle = 'black';
+            ctx.font = '16px Arial';
+            ctx.fillText(`Pontuação: ${score} | Recorde: ${highScore}`, 10, 20);
+
+            movePlayer();
+            checkCollision();
+        }
+
+        function movePlayer() {
+            player.x += dx;
+            player.y += dy;
+
+            // Mantém o jogador dentro dos limites do canvas
+            player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+            player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
+        }
+
+        function checkCollision() {
+            const distance = Math.sqrt(Math.pow(player.x - pizza.x, 2) + Math.pow(player.y - pizza.y, 2));
+            if (distance < player.size) {
+                score++;
+                if (score > highScore) {
+                    highScore = score;
+                }
+                generatePizza();
+                playSound('pickup');
+                increaseSpeed();
+            }
+        }
+
+        function generatePizza() {
+            pizza.x = Math.random() * (canvas.width - pizza.size);
+            pizza.y = Math.random() * (canvas.height - pizza.size);
+        }
+
+        function increaseSpeed() {
+            gameSpeed = Math.max(5, gameSpeed - 1);
+            clearInterval(gameLoop);
+            gameLoop = setInterval(drawGame, gameSpeed);
+        }
+
+        function gameOver() {
+            clearInterval(gameLoop);
+            playSound('gameover');
+            alert(`Game Over! Pontuação: ${score}`);
+            resetGame();
+        }
+
+        function resetGame() {
+            player = { x: 200, y: 200, size: 20 };
+            generatePizza();
+            score = 0;
+            gameSpeed = 20;
+            dx = 0;
+            dy = 0;
+            gameLoop = setInterval(drawGame, gameSpeed);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    dx = -5;
+                    dy = 0;
+                    break;
+                case 'ArrowRight':
+                    dx = 5;
+                    dy = 0;
+                    break;
+                case 'ArrowUp':
+                    dx = 0;
+                    dy = -5;
+                    break;
+                case 'ArrowDown':
+                    dx = 0;
+                    dy = 5;
+                    break;
+                case ' ':
+                    isPaused = !isPaused;
+                    break;
+            }
+        });
+
+        resetGame();
+    </script>
+</body>
+</html>
