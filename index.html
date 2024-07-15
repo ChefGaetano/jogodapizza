@@ -191,7 +191,9 @@
 
         if (isMobile) {
             canvas.addEventListener('touchstart', handleTouch);
-            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', handleTouchEnd);
+            canvas.addEventListener('touchcancel', handleTouchEnd);
         } else {
             document.addEventListener('keydown', handleKeyDown);
         }
@@ -211,17 +213,18 @@
             
             if (Math.abs(diffX) > Math.abs(diffY)) {
                 // Movimento orizzontale
-                dx = diffX > 0 ? 5 : -5;
+                dx = (diffX > 0) ? 5 : -5;
                 dy = 0;
             } else {
                 // Movimento verticale
                 dx = 0;
-                dy = diffY > 0 ? 5 : -5;
+                dy = (diffY > 0) ? 5 : -5;
             }
         }
 
-        function handleTouchMove(e) {
-            e.preventDefault();
+        function handleTouchEnd(e) {
+            dx = 0;
+            dy = 0;
         }
 
         function handleKeyDown(e) {
