@@ -205,8 +205,19 @@
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
             const touchY = e.touches[0].clientY - rect.top;
-            dx = touchX > player.x ? 5 : -5;
-            dy = touchY > player.y ? 5 : -5;
+            
+            const diffX = touchX - player.x;
+            const diffY = touchY - player.y;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // Movimento orizzontale
+                dx = diffX > 0 ? 5 : -5;
+                dy = 0;
+            } else {
+                // Movimento verticale
+                dx = 0;
+                dy = diffY > 0 ? 5 : -5;
+            }
         }
 
         function handleTouchMove(e) {
