@@ -39,8 +39,8 @@
             body: [{x: 200, y: 200}]
         };
         let pizza = { x: 100, y: 100, size: ITEM_SIZE };
-        let dx = 0;
-        let dy = 0;
+        let targetX = null;
+        let targetY = null;
         let score = 0;
         let highScore = 0;
         let gameSpeed = 60;
@@ -107,25 +107,34 @@
         }
 
         function movePlayer() {
-            // Muove il corpo
-            for (let i = player.body.length - 1; i > 0; i--) {
-                player.body[i].x = player.body[i-1].x;
-                player.body[i].y = player.body[i-1].y;
+            if (targetX !== null && targetY !== null) {
+                const dx = targetX - player.x;
+                const dy = targetY - player.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance > 5) {
+                    const speed = 5;
+                    const ratio = speed / distance;
+                    player.x += dx * ratio;
+                    player.y += dy * ratio;
+                } else {
+                    player.x = targetX;
+                    player.y = targetY;
+                    targetX = null;
+                    targetY = null;
+                }
+
+                // Aggiorna il corpo
+                player.body[0] = {x: player.x, y: player.y};
+                for (let i = player.body.length - 1; i > 0; i--) {
+                    player.body[i] = {...player.body[i-1]};
+                }
             }
-
-            // Muove la testa
-            player.body[0].x += dx;
-            player.body[0].y += dy;
-
-            // Aggiorna la posizione del giocatore
-            player.x = player.body[0].x;
-            player.y = player.body[0].y;
 
             // Mantieni il giocatore all'interno dei bordi
             player.x = Math.max(BORDER_MARGIN, Math.min(canvas.width - BORDER_MARGIN, player.x));
             player.y = Math.max(BORDER_MARGIN, Math.min(canvas.height - BORDER_MARGIN, player.y));
-            player.body[0].x = player.x;
-            player.body[0].y = player.y;
+            player.body[0] = {x: player.x, y: player.y};
         }
 
         function checkCollision() {
@@ -183,8 +192,8 @@
             generatePizza();
             score = 0;
             gameSpeed = 60;
-            dx = 0;
-            dy = 0;
+            targetX = null;
+            targetY = null;
             gameStarted = false;
             gameLoop = setInterval(drawGame, gameSpeed);
         }
@@ -203,26 +212,8 @@
                 return;
             }
             const rect = canvas.getBoundingClientRect();
-            const touchX = e.touches[0].clientX - rect.left;
-            const touchY = e.touches[0].clientY - rect.top;
-            
-            const diffX = touchX - player.x;
-            const diffY = touchY - player.y;
-            
-            const angle = Math.atan2(diffY, diffX);
-            const speed = 5;
-
-            dx = Math.cos(angle) * speed;
-            dy = Math.sin(angle) * speed;
-
-            // Arrotonda dx e dy per favorire movimenti orizzontali e verticali
-            if (Math.abs(dx) > Math.abs(dy)) {
-                dy = 0;
-                dx = dx > 0 ? speed : -speed;
-            } else if (Math.abs(dy) > Math.abs(dx)) {
-                dx = 0;
-                dy = dy > 0 ? speed : -speed;
-            }
+            targetX = e.touches[0].clientX - rect.left;
+            targetY = e.touches[0].clientY - rect.top;
         }
 
         function handleKeyDown(e) {
@@ -231,22 +222,23 @@
                 return;
             }
 
+            const speed = 5;
             switch(e.key) {
                 case 'ArrowLeft':
-                    dx = -5;
-                    dy = 0;
+                    targetX = player.x - speed;
+                    targetY = player.y;
                     break;
                 case 'ArrowRight':
-                    dx = 5;
-                    dy = 0;
+                    targetX = player.x + speed;
+                    targetY = player.y;
                     break;
                 case 'ArrowUp':
-                    dx = 0;
-                    dy = -5;
+                    targetX = player.x;
+                    targetY = player.y - speed;
                     break;
                 case 'ArrowDown':
-                    dx = 0;
-                    dy = 5;
+                    targetX = player.x;
+                    targetY = player.y + speed;
                     break;
                 case ' ':
                     isPaused = !isPaused;
