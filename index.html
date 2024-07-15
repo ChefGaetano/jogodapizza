@@ -192,8 +192,6 @@
         if (isMobile) {
             canvas.addEventListener('touchstart', handleTouch);
             canvas.addEventListener('touchmove', handleTouch);
-            canvas.addEventListener('touchend', handleTouchEnd);
-            canvas.addEventListener('touchcancel', handleTouchEnd);
         } else {
             document.addEventListener('keydown', handleKeyDown);
         }
@@ -225,11 +223,6 @@
                 dx = 0;
                 dy = dy > 0 ? speed : -speed;
             }
-        }
-
-        function handleTouchEnd(e) {
-            dx = 0;
-            dy = 0;
         }
 
         function handleKeyDown(e) {
