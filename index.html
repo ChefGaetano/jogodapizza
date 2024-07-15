@@ -211,14 +211,19 @@
             const diffX = touchX - player.x;
             const diffY = touchY - player.y;
             
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                // Movimento orizzontale
-                dx = (diffX > 0) ? 5 : -5;
+            const angle = Math.atan2(diffY, diffX);
+            const speed = 5;
+
+            dx = Math.cos(angle) * speed;
+            dy = Math.sin(angle) * speed;
+
+            // Arrotonda dx e dy per favorire movimenti orizzontali e verticali
+            if (Math.abs(dx) > Math.abs(dy)) {
                 dy = 0;
-            } else {
-                // Movimento verticale
+                dx = dx > 0 ? speed : -speed;
+            } else if (Math.abs(dy) > Math.abs(dx)) {
                 dx = 0;
-                dy = (diffY > 0) ? 5 : -5;
+                dy = dy > 0 ? speed : -speed;
             }
         }
 
