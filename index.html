@@ -36,11 +36,11 @@
             x: 200,
             y: 200,
             size: ITEM_SIZE,
-            body: [{x: 200, y: 200}]
+            body: [{x: 200, y: 200}],
+            dx: 0,
+            dy: 0
         };
         let pizza = { x: 100, y: 100, size: ITEM_SIZE };
-        let targetX = null;
-        let targetY = null;
         let score = 0;
         let highScore = 0;
         let gameSpeed = 60;
@@ -78,7 +78,7 @@
             ctx.fillText(`Pontuação: ${score} | Recorde: ${highScore}`, 10, 20);
 
             if (isMobile) {
-                ctx.fillText('Toque na tela para mover', 10, canvas.height - 40);
+                ctx.fillText('Deslize para mover', 10, canvas.height - 40);
                 ctx.fillText('Toque 2x para pausar', 10, canvas.height - 20);
             } else {
                 ctx.fillText('Use as setas para mover', 10, canvas.height - 40);
@@ -97,7 +97,7 @@
             ctx.font = '18px Arial';
             if (isMobile) {
                 ctx.fillText('Toque na tela para começar', 90, 200);
-                ctx.fillText('Toque na tela para mover', 110, 230);
+                ctx.fillText('Deslize para mover', 110, 230);
                 ctx.fillText('Toque 2x para pausar', 130, 260);
             } else {
                 ctx.fillText('Pressione ENTER para começar', 90, 200);
@@ -107,34 +107,14 @@
         }
 
         function movePlayer() {
-            if (targetX !== null && targetY !== null) {
-                const dx = targetX - player.x;
-                const dy = targetY - player.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+            player.x += player.dx;
+            player.y += player.dy;
 
-                if (distance > 5) {
-                    const speed = 5;
-                    const ratio = speed / distance;
-                    player.x += dx * ratio;
-                    player.y += dy * ratio;
-                } else {
-                    player.x = targetX;
-                    player.y = targetY;
-                    targetX = null;
-                    targetY = null;
-                }
-
-                // Aggiorna il corpo
-                player.body[0] = {x: player.x, y: player.y};
-                for (let i = player.body.length - 1; i > 0; i--) {
-                    player.body[i] = {...player.body[i-1]};
-                }
-            }
-
-            // Mantieni il giocatore all'interno dei bordi
-            player.x = Math.max(BORDER_MARGIN, Math.min(canvas.width - BORDER_MARGIN, player.x));
-            player.y = Math.max(BORDER_MARGIN, Math.min(canvas.height - BORDER_MARGIN, player.y));
+            // Aggiorna il corpo
             player.body[0] = {x: player.x, y: player.y};
+            for (let i = player.body.length - 1; i > 0; i--) {
+                player.body[i] = {...player.body[i-1]};
+            }
         }
 
         function checkCollision() {
@@ -187,33 +167,60 @@
                 x: 200,
                 y: 200,
                 size: ITEM_SIZE,
-                body: [{x: 200, y: 200}]
+                body: [{x: 200, y: 200}],
+                dx: 0,
+                dy: 0
             };
             generatePizza();
             score = 0;
             gameSpeed = 60;
-            targetX = null;
-            targetY = null;
             gameStarted = false;
             gameLoop = setInterval(drawGame, gameSpeed);
         }
 
         if (isMobile) {
-            canvas.addEventListener('touchstart', handleTouch);
-            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
         } else {
             document.addEventListener('keydown', handleKeyDown);
         }
 
-        function handleTouch(e) {
+        let touchStartX, touchStartY;
+
+        function handleTouchStart(e) {
             e.preventDefault();
             if (!gameStarted) {
                 gameStarted = true;
                 return;
             }
-            const rect = canvas.getBoundingClientRect();
-            targetX = e.touches[0].clientX - rect.left;
-            targetY = e.touches[0].clientY - rect.top;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!touchStartX || !touchStartY) {
+                return;
+            }
+
+            let touchEndX = e.touches[0].clientX;
+            let touchEndY = e.touches[0].clientY;
+
+            let dx = touchEndX - touchStartX;
+            let dy = touchEndY - touchStartY;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Movimento orizzontale
+                player.dx = dx > 0 ? 2 : -2;
+                player.dy = 0;
+            } else {
+                // Movimento verticale
+                player.dx = 0;
+                player.dy = dy > 0 ? 2 : -2;
+            }
+
+            touchStartX = touchEndX;
+            touchStartY = touchEndY;
         }
 
         function handleKeyDown(e) {
@@ -222,23 +229,22 @@
                 return;
             }
 
-            const speed = 5;
             switch(e.key) {
                 case 'ArrowLeft':
-                    targetX = player.x - speed;
-                    targetY = player.y;
+                    player.dx = -2;
+                    player.dy = 0;
                     break;
                 case 'ArrowRight':
-                    targetX = player.x + speed;
-                    targetY = player.y;
+                    player.dx = 2;
+                    player.dy = 0;
                     break;
                 case 'ArrowUp':
-                    targetX = player.x;
-                    targetY = player.y - speed;
+                    player.dx = 0;
+                    player.dy = -2;
                     break;
                 case 'ArrowDown':
-                    targetX = player.x;
-                    targetY = player.y + speed;
+                    player.dx = 0;
+                    player.dy = 2;
                     break;
                 case ' ':
                     isPaused = !isPaused;
