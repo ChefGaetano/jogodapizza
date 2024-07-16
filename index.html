@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo de Pizza do Chef Gaetano</title>
+    <title>Jogo de Pizza do Chef Gaetano WhatsApp 3199380640</title>
     <style>
         body {
             display: flex;
@@ -61,12 +61,20 @@
 
             // Disegna la bandiera italiana (corpo del giocatore)
             player.body.forEach((segment, index) => {
-                ctx.fillStyle = '#009246'; // Verde
-                ctx.fillRect(segment.x - ITEM_SIZE / 2, segment.y - ITEM_SIZE / 2, ITEM_SIZE / 3, ITEM_SIZE);
-                ctx.fillStyle = '#FFFFFF'; // Bianco
-                ctx.fillRect(segment.x - ITEM_SIZE / 6, segment.y - ITEM_SIZE / 2, ITEM_SIZE / 3, ITEM_SIZE);
-                ctx.fillStyle = '#CE2B37'; // Rosso
-                ctx.fillRect(segment.x + ITEM_SIZE / 6, segment.y - ITEM_SIZE / 2, ITEM_SIZE / 3, ITEM_SIZE);
+                ctx.fillStyle = '#009C3B'; // Verde
+ctx.fillRect(segment.x - ITEM_SIZE / 2, segment.y - ITEM_SIZE / 2, ITEM_SIZE, ITEM_SIZE);
+ctx.fillStyle = '#FFDF00'; // Giallo
+ctx.beginPath();
+ctx.moveTo(segment.x, segment.y - ITEM_SIZE / 4);
+ctx.lineTo(segment.x + ITEM_SIZE / 2, segment.y);
+ctx.lineTo(segment.x, segment.y + ITEM_SIZE / 4);
+ctx.lineTo(segment.x - ITEM_SIZE / 2, segment.y);
+ctx.closePath();
+ctx.fill();
+ctx.fillStyle = '#002776'; // Blu
+ctx.beginPath();
+ctx.arc(segment.x, segment.y, ITEM_SIZE / 4, 0, 2 * Math.PI);
+ctx.fill();
             });
 
             // Disegna la pizza
@@ -146,11 +154,11 @@
 
         function increaseSpeed() {
             if (score <= 10) {
-                gameSpeed = Math.max(50, 60 - score);
+                gameSpeed = Math.max(40, 50 - score);
             } else if (score <= 20) {
-                gameSpeed = Math.max(40, 50 - (score - 10) / 2);
+                gameSpeed = Math.max(30, 40 - (score - 10) / 2);
             } else {
-                gameSpeed = Math.max(30, 40 - (score - 20) / 5);
+                gameSpeed = Math.max(20, 30 - (score - 20) / 5);
             }
             clearInterval(gameLoop);
             gameLoop = setInterval(drawGame, gameSpeed);
