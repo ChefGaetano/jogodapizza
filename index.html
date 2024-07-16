@@ -154,11 +154,11 @@ ctx.fill();
 
         function increaseSpeed() {
             if (score <= 10) {
-                gameSpeed = Math.max(40, 50 - score);
+                gameSpeed = Math.max(20, 30 - score);
             } else if (score <= 20) {
-                gameSpeed = Math.max(30, 40 - (score - 10) / 2);
+                gameSpeed = Math.max(10, 20 - (score - 10) / 2);
             } else {
-                gameSpeed = Math.max(20, 30 - (score - 20) / 5);
+                gameSpeed = Math.max(00, 10 - (score - 20) / 5);
             }
             clearInterval(gameLoop);
             gameLoop = setInterval(drawGame, gameSpeed);
