@@ -38,252 +38,245 @@
     <div id="gameOverScreen">
         <h1>Game Over!</h1>
         <p id="finalScore">Pontuação: 0</p>
-        <button onclick="resetGame()">Reiniciar</button>
+        <button id="restartButton">Reiniciar</button>
     </div>
 
     <script>
-        (function() {
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            const gameOverScreen = document.getElementById('gameOverScreen');
-            const finalScore = document.getElementById('finalScore');
+        const c = document.getElementById('gameCanvas');
+        const ctx = c.getContext('2d');
+        const goScreen = document.getElementById('gameOverScreen');
+        const fScore = document.getElementById('finalScore');
+        const restartButton = document.getElementById('restartButton');
 
-            const ITEM_SIZE = 20;
-            const BORDER_MARGIN = ITEM_SIZE / 2;
+        const s = 20; // ITEM_SIZE
+        const b = s / 2; // BORDER_MARGIN
 
-            let player = {
+        let p = {
+            x: 200,
+            y: 200,
+            sz: s,
+            bd: [{x: 200, y: 200}],
+            dx: 0,
+            dy: 0
+        };
+        let food = { x: 100, y: 100, sz: s };
+        let sc = 0; // score
+        let hs = 0; // highScore
+        let spd = 60; // gameSpeed
+        let gl;
+        let gs = false; // gameStarted
+        let mob = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        restartButton.addEventListener('click', resetGame);
+
+        function drawGame() {
+            ctx.clearRect(0, 0, c.width, c.height);
+
+            if (!gs) {
+                drawStartScreen();
+                return;
+            }
+
+            // Disegna la bandiera italiana (corpo del giocatore)
+            p.bd.forEach((seg, idx) => {
+                ctx.fillStyle = '#009C3B'; // Verde
+                ctx.fillRect(seg.x - s / 2, seg.y - s / 2, s, s);
+                ctx.fillStyle = '#FFDF00'; // Giallo
+                ctx.beginPath();
+                ctx.moveTo(seg.x, seg.y - s / 4);
+                ctx.lineTo(seg.x + s / 2, seg.y);
+                ctx.lineTo(seg.x, seg.y + s / 4);
+                ctx.lineTo(seg.x - s / 2, seg.y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#002776'; // Blu
+                ctx.beginPath();
+                ctx.arc(seg.x, seg.y, s / 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+
+            // Disegna la pizza
+            ctx.font = `${s}px Arial`;
+            ctx.fillText('🍕', food.x - s / 2, food.y + s / 2);
+
+            ctx.fillStyle = 'black';
+            ctx.font = '16px Arial';
+            ctx.fillText(`Pontuação: ${sc} | Recorde: ${hs}`, 10, 20);
+
+            if (mob) {
+                ctx.fillText('Deslize para mover', 10, c.height - 40);
+                ctx.fillText('WhatsApp 3199380640', 10, c.height - 20);
+            } else {
+                ctx.fillText('Use as setas para mover', 10, c.height - 40);
+                ctx.fillText('WhatsApp 3199380640', 10, c.height - 20);
+            }
+
+            movePlayer();
+            checkCollision();
+            checkBorderCollision();
+        }
+
+        function drawStartScreen() {
+            ctx.fillStyle = 'black';
+            ctx.font = '24px Arial';
+            ctx.fillText('Jogo de Pizza do Chef Gaetano', 50, 150);
+            ctx.font = '18px Arial';
+            if (mob) {
+                ctx.fillText('Toque na tela para começar', 90, 200);
+                ctx.fillText('Deslize para mover', 110, 230);
+                ctx.fillText('WhatsApp 3199380640', 130, 260);
+            } else {
+                ctx.fillText('Pressione ENTER per cominciare', 90, 200);
+                ctx.fillText('Usa le frecce per muoverti', 110, 230);
+                ctx.fillText('WhatsApp 3199380640', 130, 260);
+            }
+        }
+
+        function movePlayer() {
+            p.x += p.dx;
+            p.y += p.dy;
+
+            // Aggiorna il corpo
+            p.bd[0] = {x: p.x, y: p.y};
+            for (let i = p.bd.length - 1; i > 0; i--) {
+                p.bd[i] = {...p.bd[i-1]};
+            }
+        }
+
+        function checkCollision() {
+            const dist = Math.sqrt(Math.pow(p.x - food.x, 2) + Math.pow(p.y - food.y, 2));
+            if (dist < s) {
+                sc++;
+                if (sc > hs) {
+                    hs = sc;
+                }
+                p.bd.push({...p.bd[p.bd.length - 1]});
+                generatePizza();
+                increaseSpeed();
+            }
+        }
+
+        function checkBorderCollision() {
+            if (p.x <= b || p.x >= c.width - b || p.y <= b || p.y >= c.height - b) {
+                gameOver();
+            }
+        }
+
+        function generatePizza() {
+            food.x = Math.random() * (c.width - 2 * b) + b;
+            food.y = Math.random() * (c.height - 2 * b) + b;
+        }
+
+        function increaseSpeed() {
+            if (sc <= 10) {
+                spd = Math.max(20, 30 - sc);
+            } else if (sc <= 20) {
+                spd = Math.max(10, 20 - (sc - 10) / 2);
+            } else if (sc <= 30) {
+                spd = Math.max(5, 15 - (sc - 20) / 2); // Diluire tra 20 e 30 punti
+            } else {
+                spd = Math.max(1, 10 - (sc - 30) / 2); // Diluire oltre 30 punti
+            }
+            clearInterval(gl);
+            gl = setInterval(drawGame, spd);
+        }
+
+        function gameOver() {
+            clearInterval(gl);
+            fScore.textContent = `Pontuação: ${sc}`;
+            goScreen.style.display = 'block';
+        }
+
+        function resetGame() {
+            p = {
                 x: 200,
                 y: 200,
-                size: ITEM_SIZE,
-                body: [{x: 200, y: 200}],
+                sz: s,
+                bd: [{x: 200, y: 200}],
                 dx: 0,
                 dy: 0
             };
-            let pizza = { x: 100, y: 100, size: ITEM_SIZE };
-            let score = 0;
-            let highScore = 0;
-            let gameSpeed = 60;
-            let gameLoop;
-            let gameStarted = false;
-            let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            food = { x: 100, y: 100, sz: s };
+            sc = 0;
+            spd = 60;
+            gs = false;
+            goScreen.style.display = 'none';
+            clearInterval(gl);
+            gl = setInterval(drawGame, spd);
+        }
 
-            function drawGame() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                if (!gameStarted) {
-                    drawStartScreen();
-                    return;
-                }
-
-                // Disegna la bandiera italiana (corpo del giocatore)
-                player.body.forEach((segment, index) => {
-                    ctx.fillStyle = '#009C3B'; // Verde
-                    ctx.fillRect(segment.x - ITEM_SIZE / 2, segment.y - ITEM_SIZE / 2, ITEM_SIZE, ITEM_SIZE);
-                    ctx.fillStyle = '#FFDF00'; // Giallo
-                    ctx.beginPath();
-                    ctx.moveTo(segment.x, segment.y - ITEM_SIZE / 4);
-                    ctx.lineTo(segment.x + ITEM_SIZE / 2, segment.y);
-                    ctx.lineTo(segment.x, segment.y + ITEM_SIZE / 4);
-                    ctx.lineTo(segment.x - ITEM_SIZE / 2, segment.y);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.fillStyle = '#002776'; // Blu
-                    ctx.beginPath();
-                    ctx.arc(segment.x, segment.y, ITEM_SIZE / 4, 0, 2 * Math.PI);
-                    ctx.fill();
-                });
-
-                // Disegna la pizza
-                ctx.font = `${ITEM_SIZE}px Arial`;
-                ctx.fillText('🍕', pizza.x - ITEM_SIZE / 2, pizza.y + ITEM_SIZE / 2);
-
-                ctx.fillStyle = 'black';
-                ctx.font = '16px Arial';
-                ctx.fillText(`Pontuação: ${score} | Recorde: ${highScore}`, 10, 20);
-
-                if (isMobile) {
-                    ctx.fillText('Deslize para mover', 10, canvas.height - 40);
-                    ctx.fillText('WhatsApp 3199380640', 10, canvas.height - 20);
-                } else {
-                    ctx.fillText('Use as setas para mover', 10, canvas.height - 40);
-                    ctx.fillText('WhatsApp 3199380640', 10, canvas.height - 20);
-                }
-
-                movePlayer();
-                checkCollision();
-                checkBorderCollision();
+        function handleKeyDown(e) {
+            if (!gs && e.key === 'Enter') {
+                gs = true;
+                return;
             }
 
-            function drawStartScreen() {
-                ctx.fillStyle = 'black';
-                ctx.font = '24px Arial';
-                ctx.fillText('Jogo de Pizza do Chef Gaetano', 50, 150);
-                ctx.font = '18px Arial';
-                if (isMobile) {
-                    ctx.fillText('Toque na tela para começar', 90, 200);
-                    ctx.fillText('Deslize para mover', 110, 230);
-                    ctx.fillText('WhatsApp 3199380640', 130, 260);
-                } else {
-                    ctx.fillText('Pressione ENTER para começar', 90, 200);
-                    ctx.fillText('Use as setas para mover', 110, 230);
-                    ctx.fillText('WhatsApp 3199380640', 130, 260);
-                }
+            switch(e.key) {
+                case 'ArrowLeft':
+                    p.dx = -2;
+                    p.dy = 0;
+                    break;
+                case 'ArrowRight':
+                    p.dx = 2;
+                    p.dy = 0;
+                    break;
+                case 'ArrowUp':
+                    p.dx = 0;
+                    p.dy = -2;
+                    break;
+                case 'ArrowDown':
+                    p.dx = 0;
+                    p.dy = 2;
+                    break;
+            }
+        }
+
+        if (mob) {
+            c.addEventListener('touchstart', handleTouchStart);
+            c.addEventListener('touchmove', handleTouchMove);
+        } else {
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        let touchStartX, touchStartY;
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            if (!gs) {
+                gs = true;
+                return;
+            }
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!touchStartX || !touchStartY) {
+                return;
             }
 
-            function movePlayer() {
-                player.x += player.dx;
-                player.y += player.dy;
+            let touchEndX = e.touches[0].clientX;
+            let touchEndY = e.touches[0].clientY;
 
-                // Aggiorna il corpo
-                player.body[0] = {x: player.x, y: player.y};
-                for (let i = player.body.length - 1; i > 0; i--) {
-                    player.body[i] = {...player.body[i-1]};
-                }
-            }
+            let dx = touchEndX - touchStartX;
+            let dy = touchEndY - touchStartY;
 
-            function checkCollision() {
-                const distance = Math.sqrt(Math.pow(player.x - pizza.x, 2) + Math.pow(player.y - pizza.y, 2));
-                if (distance < ITEM_SIZE) {
-                    score++;
-                    if (score > highScore) {
-                        highScore = score;
-                    }
-                    player.body.push({...player.body[player.body.length - 1]});
-                    generatePizza();
-                    increaseSpeed();
-                }
-            }
-
-            function checkBorderCollision() {
-                if (player.x <= BORDER_MARGIN || player.x >= canvas.width - BORDER_MARGIN ||
-                    player.y <= BORDER_MARGIN || player.y >= canvas.height - BORDER_MARGIN) {
-                    gameOver();
-                }
-            }
-
-            function generatePizza() {
-                pizza.x = Math.random() * (canvas.width - 2 * BORDER_MARGIN) + BORDER_MARGIN;
-                pizza.y = Math.random() * (canvas.height - 2 * BORDER_MARGIN) + BORDER_MARGIN;
-            }
-
-            function increaseSpeed() {
-                if (score <= 10) {
-                    gameSpeed = Math.max(20, 30 - score);
-                } else if (score <= 20) {
-                    gameSpeed = Math.max(10, 20 - (score - 10) / 2);
-                } else {
-                    gameSpeed = Math.max(0, 10 - (score - 20) / 5);
-                }
-                clearInterval(gameLoop);
-                gameLoop = setInterval(drawGame, gameSpeed);
-            }
-
-            function gameOver() {
-                clearInterval(gameLoop);
-                finalScore.textContent = `Pontuação: ${score}`;
-                gameOverScreen.style.display = 'block';
-                validateScore();
-            }
-
-            function resetGame() {
-                gameOverScreen.style.display = 'none';
-                player = {
-                    x: 200,
-                    y: 200,
-                    size: ITEM_SIZE,
-                    body: [{x: 200, y: 200}],
-                    dx: 0,
-                    dy: 0
-                };
-                generatePizza();
-                score = 0;
-                gameSpeed = 60;
-                gameStarted = false;
-                gameLoop = setInterval(drawGame, gameSpeed);
-            }
-
-            function handleKeyDown(e) {
-                if (!gameStarted && e.key === 'Enter') {
-                    gameStarted = true;
-                    return;
-                }
-
-                switch(e.key) {
-                    case 'ArrowLeft':
-                        player.dx = -2;
-                        player.dy = 0;
-                        break;
-                    case 'ArrowRight':
-                        player.dx = 2;
-                        player.dy = 0;
-                        break;
-                    case 'ArrowUp':
-                        player.dx = 0;
-                        player.dy = -2;
-                        break;
-                    case 'ArrowDown':
-                        player.dx = 0;
-                        player.dy = 2;
-                        break;
-                }
-            }
-
-            if (isMobile) {
-                canvas.addEventListener('touchstart', handleTouchStart);
-                canvas.addEventListener('touchmove', handleTouchMove);
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Movimento orizzontale
+                p.dx = dx > 0 ? 2 : -2;
+                p.dy = 0;
             } else {
-                document.addEventListener('keydown', handleKeyDown);
+                // Movimento verticale
+                p.dx = 0;
+                p.dy = dy > 0 ? 2 : -2;
             }
 
-            let touchStartX, touchStartY;
+            touchStartX = touchEndX;
+            touchStartY = touchEndY;
+        }
 
-            function handleTouchStart(e) {
-                e.preventDefault();
-                if (!gameStarted) {
-                    gameStarted = true;
-                    return;
-                }
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            }
-
-            function handleTouchMove(e) {
-                e.preventDefault();
-                if (!touchStartX || !touchStartY) {
-                    return;
-                }
-
-                let touchEndX = e.touches[0].clientX;
-                let touchEndY = e.touches[0].clientY;
-
-                let dx = touchEndX - touchStartX;
-                let dy = touchEndY - touchStartY;
-
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    // Movimento orizzontale
-                    player.dx = dx > 0 ? 2 : -2;
-                    player.dy = 0;
-                } else {
-                    // Movimento verticale
-                    player.dx = 0;
-                    player.dy = dy > 0 ? 2 : -2;
-                }
-
-                touchStartX = touchEndX;
-                touchStartY = touchEndY;
-            }
-
-            function validateScore() {
-                // Implementa controlli di integrità qui
-                if (score !== player.body.length - 1) {
-                    console.error("Score validation failed!");
-                    alert("Si è verificato un problema con il punteggio. Il gioco verrà resettato.");
-                    resetGame();
-                }
-            }
-
-            resetGame();
-        })();
+        resetGame();
     </script>
 </body>
 </html>
