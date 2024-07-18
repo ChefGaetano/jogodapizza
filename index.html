@@ -69,6 +69,16 @@
 
         restartButton.addEventListener('click', resetGame);
 
+        // Caricamento degli effetti sonori
+        const eatSound = new Audio('eat.mp3');
+        const bgMusic = new Audio('background.mp3');
+        bgMusic.loop = true; // Ripete la musica di sottofondo
+
+        // Assicurati che la musica di sottofondo si carichi correttamente
+        bgMusic.addEventListener('canplaythrough', () => {
+            bgMusic.play();
+        });
+
         function drawGame() {
             ctx.clearRect(0, 0, c.width, c.height);
 
@@ -77,7 +87,7 @@
                 return;
             }
 
-            // Disegna la bandiera italiana (corpo del giocatore)
+            // Disegna il giocatore utilizzando il codice della bandiera del Brasile
             p.bd.forEach((seg, idx) => {
                 ctx.fillStyle = '#009C3B'; // Verde
                 ctx.fillRect(seg.x - s / 2, seg.y - s / 2, s, s);
@@ -95,7 +105,7 @@
                 ctx.fill();
             });
 
-            // Disegna la pizza
+            // Disegna la pizza utilizzando emoji
             ctx.font = `${s}px Arial`;
             ctx.fillText('🍕', food.x - s / 2, food.y + s / 2);
 
@@ -147,10 +157,18 @@
             const dist = Math.sqrt(Math.pow(p.x - food.x, 2) + Math.pow(p.y - food.y, 2));
             if (dist < s) {
                 sc++;
+                eatSound.play(); // Riproduci il suono di mangiare
                 if (sc > hs) {
                     hs = sc;
                 }
-                p.bd.push({...p.bd[p.bd.length - 1]});
+                // Aumenta di 2 unità
+                for (let i = 0; i < 2; i++) {
+                    p.bd.push({...p.bd[p.bd.length - 1]});
+                }
+                // Ogni 10 pizze, aggiungi una bandiera italiana
+                if (sc % 10 === 0) {
+                    p.bd.push({...p.bd[p.bd.length - 1], isItalian: true});
+                }
                 generatePizza();
                 increaseSpeed();
             }
@@ -169,14 +187,17 @@
 
         function increaseSpeed() {
             if (sc <= 10) {
-                spd = Math.max(20, 30 - sc);
+                spd = 50 - (sc * 1); // Scala 1-2 (da 50 a 45 ms)
             } else if (sc <= 20) {
-                spd = Math.max(10, 20 - (sc - 10) / 2);
+                spd = 45 - ((sc - 10) * 1); // Scala 3-4 (da 45 a 35 ms)
             } else if (sc <= 30) {
-                spd = Math.max(5, 15 - (sc - 20) / 2); // Diluire tra 20 e 30 punti
+                spd = 35 - ((sc - 20) * 1); // Scala 5-6 (da 35 a 25 ms)
+            } else if (sc <= 40) {
+                spd = 25 - ((sc - 30) * 1); // Scala 7-8 (da 25 a 15 ms)
             } else {
-                spd = Math.max(1, 10 - (sc - 30) / 2); // Diluire oltre 30 punti
+                spd = 15 - ((sc - 40) * 1); // Scala 9-10 (da 15 a 5 ms)
             }
+            spd = Math.max(5, spd); // Assicurati che la velocità non scenda sotto 5 ms
             clearInterval(gl);
             gl = setInterval(drawGame, spd);
         }
